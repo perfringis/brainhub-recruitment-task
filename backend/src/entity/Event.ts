@@ -18,4 +18,12 @@ export class Event extends BaseEntity {
     this.user = user;
     this.eventDate = eventDate;
   }
+
+  public getUser(): User {
+    return this.user;
+  }
+
+  public getEventDate(): Date {
+    return this.eventDate;
+  }
 }

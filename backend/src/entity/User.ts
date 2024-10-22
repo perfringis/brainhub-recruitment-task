@@ -15,4 +15,16 @@ export class User {
     this.lastName = lastName;
     this.email = email;
   }
+
+  public getFirstName(): string {
+    return this.firstName;
+  }
+
+  public getLastName(): string {
+    return this.lastName;
+  }
+
+  public getEmail(): string {
+    return this.email;
+  }
 }
