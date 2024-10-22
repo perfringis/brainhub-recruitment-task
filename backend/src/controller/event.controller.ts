@@ -1,12 +1,18 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
   HttpStatus,
+  NotFoundException,
   Param,
+  Post,
   Res,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { CreateEventDTO } from 'src/dto/create.event.dto';
 import { EventDTO } from 'src/dto/event.dto';
 import { Event } from 'src/entity/Event';
 import { EventService } from 'src/service/event.service';
@@ -28,6 +34,20 @@ export class EventController {
   ): Promise<EventDTO> {
     const event: Event = await this.eventService.getEventById(eventId);
 
+    if (!event) {
+      throw new NotFoundException(`Cannot find event with id = ${eventId}`);
+    }
+
+    return this.toDto(event);
+  }
+
+  @Post('/event')
+  @UsePipes(ValidationPipe)
+  public async createEvent(
+    @Body() createEventDTO: CreateEventDTO,
+  ): Promise<EventDTO> {
+    const event: Event = await this.eventService.createEvent(createEventDTO);
+
     return this.toDto(event);
   }
 
@@ -36,9 +56,13 @@ export class EventController {
     @Param('eventId') eventId: string,
     @Res() response: Response,
   ): Promise<void> {
-    await this.eventService.deleteEventById(eventId);
+    const event: Event = await this.eventService.deleteEventById(eventId);
 
-    response.status(HttpStatus.OK).send();
+    if (!event) {
+      throw new NotFoundException(`Cannot delete event with id = ${eventId}`);
+    }
+
+    response.status(HttpStatus.NO_CONTENT).send();
   }
 
   private toDto(event: Event): EventDTO {
