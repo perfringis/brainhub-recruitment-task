@@ -23,7 +23,15 @@ export class Event extends BaseEntity {
     return this.user;
   }
 
+  public setUser(user: User): void {
+    this.user = user;
+  }
+
   public getEventDate(): Date {
     return this.eventDate;
+  }
+
+  public setEventDate(eventDate: Date): void {
+    this.eventDate = eventDate;
   }
 }

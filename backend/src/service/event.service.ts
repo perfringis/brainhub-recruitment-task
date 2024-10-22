@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateEventDTO } from 'src/dto/create.event.dto';
+import { UpdateEventDTO } from 'src/dto/update.event.dto';
 import { Event } from 'src/entity/Event';
 import { User } from 'src/entity/User';
 import { EventRepository } from 'src/repository/event.repository';
@@ -32,6 +33,28 @@ export class EventService {
     }
 
     return event;
+  }
+
+  public async updateEvent(
+    eventId: string,
+    updateEventDTO: UpdateEventDTO,
+  ): Promise<Event> {
+    const event: Event = await this.eventRepository.getOne(eventId);
+
+    if (!event) {
+      throw new NotFoundException(`Cannot find event with id = ${eventId}`);
+    }
+
+    event.setEventDate(updateEventDTO.eventDate);
+    event.setUser(
+      new User(
+        updateEventDTO.firstName,
+        updateEventDTO.lastName,
+        updateEventDTO.email,
+      ),
+    );
+
+    return await this.eventRepository.save(event);
   }
 
   public async deleteEventById(eventId: string): Promise<void> {

@@ -4,9 +4,9 @@ import {
   Delete,
   Get,
   HttpStatus,
-  NotFoundException,
   Param,
   Post,
+  Put,
   Res,
   UsePipes,
   ValidationPipe,
@@ -14,6 +14,7 @@ import {
 import { Response } from 'express';
 import { CreateEventDTO } from 'src/dto/create.event.dto';
 import { EventDTO } from 'src/dto/event.dto';
+import { UpdateEventDTO } from 'src/dto/update.event.dto';
 import { Event } from 'src/entity/Event';
 import { EventService } from 'src/service/event.service';
 
@@ -43,6 +44,20 @@ export class EventController {
     @Body() createEventDTO: CreateEventDTO,
   ): Promise<EventDTO> {
     const event: Event = await this.eventService.createEvent(createEventDTO);
+
+    return this.toDto(event);
+  }
+
+  @Put('/event')
+  @UsePipes(ValidationPipe)
+  public async updateEvent(
+    @Param('eventId') eventId: string,
+    @Body() updateEventDTO: UpdateEventDTO,
+  ): Promise<EventDTO> {
+    const event: Event = await this.eventService.updateEvent(
+      eventId,
+      updateEventDTO,
+    );
 
     return this.toDto(event);
   }
