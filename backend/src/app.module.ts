@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './controller/app.controller';
-import { AppService } from './service/app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Event } from './entity/Event';
+import { EventController } from './controller/event.controller';
+import { EventService } from './service/event.service';
+import { EventRepository } from './repository/event.repository';
 
 @Module({
   imports: [
@@ -19,10 +21,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       autoLoadEntities: true,
       synchronize: true,
       logging: true,
-      entities: [],
+      entities: [Event],
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [EventController],
+  providers: [
+    // repository
+    EventRepository,
+
+    // service
+    EventService,
+  ],
 })
 export class AppModule {}
