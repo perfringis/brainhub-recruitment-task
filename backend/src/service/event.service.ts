@@ -1,9 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateEventDTO } from 'src/dto/create.event.dto';
 import { Event } from 'src/entity/Event';
 import { User } from 'src/entity/User';
 import { EventRepository } from 'src/repository/event.repository';
-import { DeleteResult } from 'typeorm';
 
 @Injectable()
 export class EventService {
@@ -26,10 +25,20 @@ export class EventService {
   }
 
   public async getEventById(eventId: string): Promise<Event> {
-    return await this.eventRepository.getOne(eventId);
+    const event: Event = await this.eventRepository.getOne(eventId);
+
+    if (!event) {
+      throw new NotFoundException(`Cannot find event with id = ${eventId}`);
+    }
+
+    return event;
   }
 
-  public async deleteEventById(eventId: string): Promise<Event> {
-    return await this.eventRepository.deleteById(eventId);
+  public async deleteEventById(eventId: string): Promise<void> {
+    const event: Event = await this.eventRepository.deleteById(eventId);
+
+    if (!event) {
+      throw new NotFoundException(`Cannot find event with id = ${eventId}`);
+    }
   }
 }

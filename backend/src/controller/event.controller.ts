@@ -34,10 +34,6 @@ export class EventController {
   ): Promise<EventDTO> {
     const event: Event = await this.eventService.getEventById(eventId);
 
-    if (!event) {
-      throw new NotFoundException(`Cannot find event with id = ${eventId}`);
-    }
-
     return this.toDto(event);
   }
 
@@ -56,11 +52,7 @@ export class EventController {
     @Param('eventId') eventId: string,
     @Res() response: Response,
   ): Promise<void> {
-    const event: Event = await this.eventService.deleteEventById(eventId);
-
-    if (!event) {
-      throw new NotFoundException(`Cannot delete event with id = ${eventId}`);
-    }
+    await this.eventService.deleteEventById(eventId);
 
     response.status(HttpStatus.NO_CONTENT).send();
   }
