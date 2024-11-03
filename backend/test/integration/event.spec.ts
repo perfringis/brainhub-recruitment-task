@@ -1,11 +1,10 @@
 import { AppModule } from 'src/app.module';
 import { EventService } from 'src/service/event.service';
 import { Test } from '@nestjs/testing';
-import { CreateEventDTO } from 'src/dto/create.event.dto';
 import { Event } from 'src/entity/Event';
 import { QueryFailedError } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
-import { UpdateEventDTO } from 'src/dto/update.event.dto';
+import { CreateOrUpdateEventDTO } from 'src/dto/create.or.update.event.dto';
 
 describe('Event integration test', () => {
   let eventService: EventService;
@@ -22,7 +21,7 @@ describe('Event integration test', () => {
 
   test('should create event with valid data', async () => {
     // given
-    const dto: CreateEventDTO = new CreateEventDTO(
+    const createEventDTO: CreateOrUpdateEventDTO = new CreateOrUpdateEventDTO(
       'John',
       'Doe',
       'test@test.com',
@@ -30,13 +29,13 @@ describe('Event integration test', () => {
     );
 
     // when
-    const event: Event = await eventService.createEvent(dto);
+    const event: Event = await eventService.createEvent(createEventDTO);
 
     // then
-    expect(dto.firstName).toEqual(event.getUser().getFirstName());
-    expect(dto.lastName).toEqual(event.getUser().getLastName());
-    expect(dto.email).toEqual(event.getUser().getEmail());
-    expect(dto.eventDate).toEqual(event.getEventDate());
+    expect(createEventDTO.firstName).toEqual(event.getUser().getFirstName());
+    expect(createEventDTO.lastName).toEqual(event.getUser().getLastName());
+    expect(createEventDTO.email).toEqual(event.getUser().getEmail());
+    expect(createEventDTO.eventDate).toEqual(event.getEventDate());
     expect(event.getId()).not.toBeNull();
 
     // after
@@ -45,7 +44,7 @@ describe('Event integration test', () => {
 
   test('should not create event with invalid data', async () => {
     // when
-    const dto: CreateEventDTO = new CreateEventDTO(
+    const createEventDTO: CreateOrUpdateEventDTO = new CreateOrUpdateEventDTO(
       null,
       'Doe',
       'test@test.com',
@@ -53,14 +52,15 @@ describe('Event integration test', () => {
     );
 
     // then
-    await expect(() => eventService.createEvent(dto)).rejects.toThrow(
-      QueryFailedError,
-    );
+    await expect(() =>
+      eventService.createEvent(createEventDTO),
+    ).rejects.toThrow(QueryFailedError);
   });
 
   test('should get all events', async () => {
     // given
     const firstEvent: Event = await createEvent();
+    // and
     const secondEvent: Event = await createEvent();
 
     // when
@@ -110,9 +110,10 @@ describe('Event integration test', () => {
     // given
     const createdEvent: Event = await createEvent();
 
-    // then
+    // when
     await eventService.deleteEventById(createdEvent.getId());
 
+    // then
     await expect(() =>
       eventService.getEventById(createdEvent.getId()),
     ).rejects.toThrow(NotFoundException);
@@ -132,9 +133,18 @@ describe('Event integration test', () => {
     // when
     const now = new Date();
 
+    // and
+    const updateEventDTO: CreateOrUpdateEventDTO = new CreateOrUpdateEventDTO(
+      'Johnny',
+      'Don',
+      'test@gmail.com',
+      now,
+    );
+
+    // and
     const updatedEvent: Event = await eventService.updateEvent(
       createdEvent.getId(),
-      new UpdateEventDTO('Johnny', 'Don', 'test@gmail.com', now),
+      updateEventDTO,
     );
 
     // then
@@ -155,11 +165,16 @@ describe('Event integration test', () => {
     // then
     const now = new Date();
 
+    // and
+    const updateEventDTO: CreateOrUpdateEventDTO = new CreateOrUpdateEventDTO(
+      null,
+      'Don',
+      'test@gmail.com',
+      now,
+    );
+
     await expect(
-      eventService.updateEvent(
-        createdEvent.getId(),
-        new UpdateEventDTO(null, 'Don', 'test@gmail.com', now),
-      ),
+      eventService.updateEvent(createdEvent.getId(), updateEventDTO),
     ).rejects.toThrow(QueryFailedError);
 
     // after
@@ -167,22 +182,36 @@ describe('Event integration test', () => {
   });
 
   test('should not update event when event is not present in database', async () => {
+    // when
+    const now: Date = new Date();
+
+    // and
+    const updateEventDTO: CreateOrUpdateEventDTO = new CreateOrUpdateEventDTO(
+      null,
+      'Don',
+      'test@gmail.com',
+      now,
+    );
+
+    // then
     await expect(
       eventService.updateEvent(
         'd7b8d8e3-3ab5-4080-ac66-02693c7a5ae2',
-        new UpdateEventDTO(null, 'Don', 'test@gmail.com', new Date()),
+        updateEventDTO,
       ),
     ).rejects.toThrow(NotFoundException);
   });
 
   const createEvent = async (): Promise<Event> => {
-    const dto: CreateEventDTO = new CreateEventDTO(
+    const now: Date = new Date();
+
+    const eventDTO: CreateOrUpdateEventDTO = new CreateOrUpdateEventDTO(
       'John',
       'Doe',
       'test@test.com',
-      new Date(),
+      now,
     );
 
-    return await eventService.createEvent(dto);
+    return await eventService.createEvent(eventDTO);
   };
 });
