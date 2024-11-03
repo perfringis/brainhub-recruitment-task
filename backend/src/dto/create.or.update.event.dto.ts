@@ -1,6 +1,6 @@
 import { IsDateString, IsEmail, IsNotEmpty } from 'class-validator';
 
-export class UpdateEventDTO {
+export class CreateOrUpdateEventDTO {
   @IsNotEmpty()
   public firstName: string;
 

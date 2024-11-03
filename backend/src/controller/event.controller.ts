@@ -12,9 +12,8 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { CreateEventDTO } from 'src/dto/create.event.dto';
+import { CreateOrUpdateEventDTO } from 'src/dto/create.or.update.event.dto';
 import { EventDTO } from 'src/dto/event.dto';
-import { UpdateEventDTO } from 'src/dto/update.event.dto';
 import { Event } from 'src/entity/Event';
 import { EventService } from 'src/service/event.service';
 
@@ -41,7 +40,7 @@ export class EventController {
   @Post('/event')
   @UsePipes(ValidationPipe)
   public async createEvent(
-    @Body() createEventDTO: CreateEventDTO,
+    @Body() createEventDTO: CreateOrUpdateEventDTO,
   ): Promise<EventDTO> {
     const event: Event = await this.eventService.createEvent(createEventDTO);
 
@@ -52,7 +51,7 @@ export class EventController {
   @UsePipes(ValidationPipe)
   public async updateEvent(
     @Param('eventId') eventId: string,
-    @Body() updateEventDTO: UpdateEventDTO,
+    @Body() updateEventDTO: CreateOrUpdateEventDTO,
   ): Promise<EventDTO> {
     const event: Event = await this.eventService.updateEvent(
       eventId,

@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateEventDTO } from 'src/dto/create.event.dto';
-import { UpdateEventDTO } from 'src/dto/update.event.dto';
+import { CreateOrUpdateEventDTO } from 'src/dto/create.or.update.event.dto';
 import { Event } from 'src/entity/Event';
 import { User } from 'src/entity/User';
 import { EventRepository } from 'src/repository/event.repository';
@@ -9,7 +8,9 @@ import { EventRepository } from 'src/repository/event.repository';
 export class EventService {
   constructor(private readonly eventRepository: EventRepository) {}
 
-  public async createEvent(createEventDTO: CreateEventDTO): Promise<Event> {
+  public async createEvent(
+    createEventDTO: CreateOrUpdateEventDTO,
+  ): Promise<Event> {
     const user: User = new User(
       createEventDTO.firstName,
       createEventDTO.lastName,
@@ -37,7 +38,7 @@ export class EventService {
 
   public async updateEvent(
     eventId: string,
-    updateEventDTO: UpdateEventDTO,
+    updateEventDTO: CreateOrUpdateEventDTO,
   ): Promise<Event> {
     const event: Event = await this.eventRepository.getOne(eventId);
 
